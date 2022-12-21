@@ -4,7 +4,7 @@ const Router = express.Router()
 // Import Controller
 const {usersController} = require('./../controllers');
 
-Router.get('/get', usersController.getUsers);
-Router.post('/post', usersController.postUsers)
+Router.post('/register', usersController.register);
+Router.get('/login', usersController.login);
 
 module.exports = Router;
