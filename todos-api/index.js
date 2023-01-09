@@ -9,7 +9,7 @@ app.get('/', (req, res) => {
     res.status(200).send('<h1>Welcome to Our API</h1>')
 })
 
-const { passengersRouter } = require("./routers");
-app.use('/passengers', passengersRouter)
+const { todosRouter } = require("./routers");
+app.use('/todos', todosRouter)
 
 app.listen(PORT, () => console.log('API Running on Port ' + PORT))
