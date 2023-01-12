@@ -5,6 +5,7 @@ const Router = express.Router()
 const {usersController} = require('../Controllers');
 
 Router.post('/register', usersController.register);
-Router.post('/login', usersController.login);
+Router.get('/login', usersController.login);
+Router.post('/transactions', usersController.transactions);
 
 module.exports = Router;

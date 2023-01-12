@@ -56,5 +56,36 @@ module.exports = {
         } catch (error) {
             console.log(error)
         }
+    },
+
+    transactions: async(req, res) => {
+        try {
+            // Ambil data dari client (req.body)
+            let {total_price, users_id, variant} = req.body
+            console.log(total_price)
+            console.log(variant)
+
+            // Kirim data ke tb. transactions
+            let insertTransactions = await query(`INSERT INTO transactions(total_price, users_id) VALUES ('${total_price}', '${users_id}')`)
+            
+            // Kirim data ke tb.transactions_details
+            await query(`INSERT INTO transactions_detail SET ?`, {name: variant[0].name, variant: variant[0].variant, qty: variant[0].qty, total_price: variant[0].total_price_item, topping: variant[0].topping, sugar: variant[0].sugar, transactions_id: insertTransactions.insertId})
+
+            // Set event scheduler (Kebutuhan expired transaction)
+            await query(`CREATE EVENT change_status_transactions_${insertTransactions.insertId} 
+            ON SCHEDULE AT DATE_ADD(NOW(), INTERVAL 1 MINUTE)
+            DO
+                UPDATE transactions SET status = 'Expired'
+                WHERE id = ?;`, insertTransactions.insertId)
+
+            // Kirim response
+            res.status(201).send({
+                isError: false, 
+                message: 'Create Transactions Success', 
+                data: null
+            })
+        } catch (error) {
+            console.log(error)
+        }
     }
 }
