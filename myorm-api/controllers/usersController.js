@@ -7,6 +7,9 @@ const db = require('./../models/index')
 const users = db.users
 const users_address = db.users_address
 
+// Import hashing
+const {hashPassword} = require('./../lib/hash')
+
 module.exports = {
     register: async(req, res) => {
         const t = await sequelize.transaction() 
@@ -19,7 +22,7 @@ module.exports = {
             // ... 
 
             // Step-3 Insert data ke users
-            let insertToUsers = await users.create({username, email, password}, {transaction: t})
+            let insertToUsers = await users.create({username, email, password: await hashPassword(password)}, {transaction: t})
             let users_id = insertToUsers.dataValues.id
 
             // Step-4 Insert data ke users_address (membutuhkan id users)
