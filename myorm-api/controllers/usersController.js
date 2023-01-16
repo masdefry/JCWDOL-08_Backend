@@ -8,7 +8,10 @@ const users = db.users
 const users_address = db.users_address
 
 // Import hashing
-const {hashPassword} = require('./../lib/hash')
+const {hashPassword, hashMatch} = require('./../lib/hash')
+
+// Import jwt
+const {createToken} = require('./../lib/jwt')
 
 module.exports = {
     register: async(req, res) => {
@@ -42,6 +45,45 @@ module.exports = {
                 message: error.message, 
                 data: null
             })
+        }
+    },
+
+    login: async(req, res) => {
+        try {
+            // Step-1 Ambil data dari req.query
+            let {username, password} = req.query
+            // Step-2 Check username is exist or not
+            let findUsername = await users.findOne({
+                where: {
+                    username
+                }
+            })
+            
+            if(!findUsername) return res.status(404).send({
+                isError: true, 
+                message: 'Username not exist',
+                data: null
+            })
+
+            // Step-3 If username exist, hasmatch password dari req.query dan password dari database
+            let hasMatchResult = await hashMatch(password, findUsername.dataValues.password)
+           
+            if(hasMatchResult === false) return res.status(404).send({
+                isError: false, 
+                message: 'Password not valid', 
+                data: null
+            })
+
+            let token = await createToken({id: findUsername.dataValues.id})
+
+            // Step-4 Kirim response
+            res.status(201).send({
+                isError: false, 
+                message: 'Login Success', 
+                data: token
+            })
+        } catch (error) {
+            console.log(error)
         }
     }
 }   
