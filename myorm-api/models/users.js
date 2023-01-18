@@ -24,9 +24,32 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       defaultValue: UUIDV4
     },
-    username: DataTypes.STRING,
-    email: DataTypes.STRING,
-    password: DataTypes.STRING,
+    username: {
+      type: DataTypes.STRING, 
+      unique: {
+        args: true, 
+        msg: 'Username Already in Use'
+      }
+    },
+    email: {
+      type: DataTypes.STRING,
+      validate: {
+        isEmail: {msg: 'Email Not Valid'}
+      },
+      unique: true
+    },
+    password: {
+      type: DataTypes.STRING,
+      isAlphanumeric: true, 
+      max:{
+        args:[10],
+        msg:"Maximum 10 Characters Only"
+      },
+      min:{
+          args:[6],
+          msg:"Minimum 6 Characters Only"
+      }
+    },
     role: DataTypes.STRING
   }, {
     sequelize,
