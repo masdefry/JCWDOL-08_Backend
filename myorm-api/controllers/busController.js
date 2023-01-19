@@ -5,6 +5,9 @@ const { Op } = require('sequelize');
 // Import models
 const db = require('./../models/index')
 const bus = db.bus
+const bus_rute = db.bus_rute
+const transactions = db.transactions
+const transaction_details = db.transaction_details
 
 // Import hashing
 const {hashPassword, hashMatch} = require('./../lib/hash')
@@ -22,7 +25,7 @@ module.exports = {
             JOIN transaction_details td ON td.transactions_id = t.id
             RIGHT JOIN buses b ON (b.id = t.bus_id AND (t.schedule_date = ? OR t.schedule_date IS NULL))
             JOIN bus_rutes br ON br.bus_id = b.id
-            WHERE br.from = ? AND br.to = ?
+            WHERE br.from = ? AND br.to = ? AND t.status = 'Paid'
             GROUP BY b.id;
             `, {
                 replacements: [schedule_date, from, to], 
@@ -41,7 +44,6 @@ module.exports = {
 
     details: async(req, res) => {
         try {
-            console.log('Masukkk')
             let {id} = req.params
             console.log(id)
             let {schedule_date, from, to} = req.query
@@ -51,7 +53,7 @@ module.exports = {
             JOIN transaction_details td ON td.transactions_id = t.id
             RIGHT JOIN buses b ON (b.id = t.bus_id AND (t.schedule_date = ? OR t.schedule_date IS NULL))
             JOIN bus_rutes br ON br.bus_id = b.id
-            WHERE br.from = ? AND br.to = ? AND b.id = ?
+            WHERE br.from = ? AND br.to = ? AND b.id = ? AND t.status = 'Paid'
             GROUP BY b.id;
             `, {
                 replacements: [schedule_date, from, to, id], 
@@ -65,6 +67,55 @@ module.exports = {
             })
         } catch (error) {
             
+        }
+    },
+
+    createTransaction: async(req, res) => {
+        const t = await sequelize.transaction() 
+        try {
+            let {id} = req.dataDecode
+            let {bus_id} = req.params
+            let {bus_name, from, to, schedule_date, total_price, seat_number} = req.body
+            
+            let insertTransaction = await transactions.create({bus_name, from, to, schedule_date, total_price, bus_id, users_id: id}, {transaction: t})
+            let insertId = insertTransaction.dataValues.id
+            let findPrice = await bus_rute.findOne({
+                where: {
+                    [Op.and]: [
+                        {
+                            from, 
+                            to, 
+                            bus_id
+                        }
+                    ]
+                }
+            })
+
+            let price = findPrice.dataValues.price
+
+            let dataToSend = []
+            seat_number.forEach((value) => {
+                dataToSend.push({seat_number: value, price, transactions_id: insertId})
+            })
+            
+            await transaction_details.bulkCreate(dataToSend, {transaction: t, ignoreDuplicates: true})
+
+            await sequelize.query(`CREATE EVENT change_status_transactions_${insertId} 
+            ON SCHEDULE AT DATE_ADD(NOW(), INTERVAL 1 MINUTE)
+            DO
+                UPDATE transactions SET status = 'Expired'
+                WHERE id = ?;`, {replacements: [insertId]})
+
+            t.commit()
+
+            res.status(201).send({
+                isError: false, 
+                message: 'Transaction Success', 
+                data: null
+            })
+        } catch (error) {
+            t.rollback()
+            console.log(error)
         }
     }
 }   
