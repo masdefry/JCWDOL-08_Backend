@@ -25,7 +25,7 @@ module.exports = {
             JOIN transaction_details td ON td.transactions_id = t.id
             RIGHT JOIN buses b ON (b.id = t.bus_id AND (t.schedule_date = ? OR t.schedule_date IS NULL))
             JOIN bus_rutes br ON br.bus_id = b.id
-            WHERE br.from = ? AND br.to = ? AND t.status = 'Paid'
+            WHERE br.from = ? AND br.to = ? AND t.status != 'Expired'
             GROUP BY b.id;
             `, {
                 replacements: [schedule_date, from, to], 
@@ -53,7 +53,7 @@ module.exports = {
             JOIN transaction_details td ON td.transactions_id = t.id
             RIGHT JOIN buses b ON (b.id = t.bus_id AND (t.schedule_date = ? OR t.schedule_date IS NULL))
             JOIN bus_rutes br ON br.bus_id = b.id
-            WHERE br.from = ? AND br.to = ? AND b.id = ? AND t.status = 'Paid'
+            WHERE br.from = ? AND br.to = ? AND b.id = ? AND t.status != 'Expired'
             GROUP BY b.id;
             `, {
                 replacements: [schedule_date, from, to, id], 
