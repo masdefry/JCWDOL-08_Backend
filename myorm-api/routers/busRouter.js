@@ -5,5 +5,6 @@ const Router = express.Router()
 const {busController} = require('../controllers') // Akan otomatis mengambil file index.js nya
 
 Router.get('/search', busController.search)
+Router.get('/details/:id', busController.details)
 
 module.exports = Router
