@@ -39,16 +39,7 @@ module.exports = (sequelize, DataTypes) => {
       unique: true
     },
     password: {
-      type: DataTypes.STRING,
-      isAlphanumeric: true, 
-      max:{
-        args:[10],
-        msg:"Maximum 10 Characters Only"
-      },
-      min:{
-          args:[6],
-          msg:"Minimum 6 Characters Only"
-      }
+      type: DataTypes.STRING
     },
     role: DataTypes.STRING
   }, {
