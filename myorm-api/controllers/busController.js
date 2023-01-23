@@ -117,5 +117,13 @@ module.exports = {
             t.rollback()
             console.log(error)
         }
+    },
+
+    payment: async(req, res) => {
+        try {
+            
+        } catch (error) {
+            
+        }
     }
 }   
