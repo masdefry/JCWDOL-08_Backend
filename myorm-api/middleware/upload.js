@@ -11,20 +11,17 @@ const uploadImages = (req, res, next) => {
             if(err) throw err
 
             req.files.images.forEach(value => {
-                if(value.size > 100000){
-                    deleteFiles(req.files.images)
-
-                    return res.status(404).send({
-                        isError: true, 
-                        message: `${value.originalname} size too large`,
-                        data: null
-                    })
+                if(value.size > 100000) throw {
+                    message: `${value.originalname} size too large`
                 }
             })
 
-            // next()
+            next()
             
         } catch (error) {
+            if(req.files.images){
+                deleteFiles(req.files.images)
+            }
             res.status(400).send({
                 isError: true, 
                 message: error.message, 
