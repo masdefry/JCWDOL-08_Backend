@@ -17,6 +17,10 @@ const {createToken} = require('./../lib/jwt')
 
 const transporter = require('./../helpers/transporter')
 
+const fs = require('fs').promises
+
+const handlebars = require('handlebars');
+
 module.exports = {
     search: async(req, res) => {
         try {
@@ -146,11 +150,20 @@ module.exports = {
             `)
 
             // Step-5 Kirim invoice to users email
+            let findTransaction = await transactions.findOne({
+                where: {
+                    id: transaction_id
+                }
+            })
+      
+            let template = await fs.readFile('./template/invoice.html', 'utf-8')
+            let compiledTemplate = await handlebars.compile(template)
+            let newTemplate = compiledTemplate({id: findTransaction.dataValues.id, schedule_date: findTransaction.dataValues.schedule_date, from: findTransaction.dataValues.from, to: findTransaction.dataValues.to})
             await transporter.sendMail({
                 from: 'Bus App',
                 to: 'ryan.fandy@gmail.com', 
                 subject: 'Invoice Transaction', 
-                html: '<h1>Transaction Success</h1>'
+                html: newTemplate
             })
             
             t.commit()
