@@ -34,7 +34,8 @@ module.exports = (sequelize, DataTypes) => {
     status: {
       type: DataTypes.STRING,
       defaultValue: 'Waiting for Payment'
-    }
+    }, 
+    payment_proof: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'transactions',
