@@ -47,7 +47,7 @@ module.exports = {
                 }
             })
 
-            if(!findUsernameOrEmail.dataValues) return res.status(404).send({
+            if(!findUsernameOrEmail) return res.status(404).send({
                 isError: true, 
                 message: 'Username or Email Not Found', 
                 data: true
@@ -69,7 +69,11 @@ module.exports = {
                 }
             })
         } catch (error) {
-            
+            res.status(500).send({
+                isError: true, 
+                message: error.message, 
+                data: true
+            })
         }
     }
 }   
