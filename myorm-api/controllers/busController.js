@@ -25,13 +25,14 @@ module.exports = {
     search: async(req, res) => {
         try {
             let {schedule_date, from, to} = req.query
+            console.log(req.query)
 
             let findBus = await sequelize.query(`
             SELECT b.id, b.name, br.from, br.to, br.price, br.total_seat, br.total_seat - COUNT(td.id) AS total_seat_available FROM transactions t 
             JOIN transaction_details td ON td.transactions_id = t.id
-            RIGHT JOIN buses b ON (b.id = t.bus_id AND (t.schedule_date = ? OR t.schedule_date IS NULL))
+            RIGHT JOIN buses b ON (b.id = t.bus_id AND (t.status != 'Expired' AND t.schedule_date = ? OR t.schedule_date IS NULL))
             JOIN bus_rutes br ON br.bus_id = b.id
-            WHERE br.from = ? AND br.to = ? AND t.status != 'Expired'
+            WHERE br.from = ? AND br.to = ?
             GROUP BY b.id;
             `, {
                 replacements: [schedule_date, from, to], 
