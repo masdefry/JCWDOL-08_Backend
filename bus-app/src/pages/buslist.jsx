@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react';
-import {useLocation} from 'react-router-dom';
+import {Link, useLocation} from 'react-router-dom';
 import axios from 'axios';
 
 export default function BusList(){
 
     let query = useLocation().search
+
+    let total_seat_params = new URLSearchParams(query);
+    let total_seat = total_seat_params.get("total_seat")
+    
     const [busList, setBusList] = useState([])
 
     let onSearchBus = async() => {
@@ -81,7 +85,7 @@ export default function BusList(){
                                         </div>
                                         <div className="col-12">
                                             <h6 className="font-weight-light">
-                                                {value.total_seat - value.total_seat_available} Booked from {value.total_seat} Seat Available
+                                                {value.total_seat - value.total_seat_available} Booked from {value.total_seat} Seat
                                                 
                                             </h6>
                                             <div class="progress">
@@ -89,7 +93,14 @@ export default function BusList(){
                                             </div>
                                         </div>
                                         <div className="col-12">
-                                            <button type="submit" class="btn btn-danger w-20 mt-3 mb-3">Book Seat</button>
+                                            {
+                                               total_seat > value.total_seat_available?
+                                                <button disabled type="submit" class="btn btn-light w-20 mt-3 mb-3">Full Booked</button>
+                                               :
+                                                <Link to={`/busdetail/${value.id}${query}`}>
+                                                    <button type="submit" class="btn btn-danger w-20 mt-3 mb-3">Book Seat</button>
+                                                </Link>
+                                            }
                                         </div>
                                     </div>
                                 </div>

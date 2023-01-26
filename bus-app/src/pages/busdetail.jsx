@@ -1,4 +1,42 @@
+import {useParams, useLocation} from 'react-router-dom';
+
+import {useEffect, useState} from 'react';
+
+import axios from 'axios';
+
 export default function BusDetail(){
+
+    const {id} = useParams()
+
+    let query = useLocation().search
+    let getQuery = new URLSearchParams(query);
+    let schedule_date = getQuery.get("schedule_date")
+    let from = getQuery.get("from")
+    let to = getQuery.get("to")
+    let total_seat = getQuery.get("total_seat")
+
+    const [data, setData] = useState([])
+    
+    let onGetBusDetail = async() => {
+        try {
+            let response = await axios.get(`http://localhost:5004/bus/details/${id}?schedule_date=${schedule_date}&from=${from}&to=${to}`)
+            console.log(response)
+            setData(response.data.data[0])
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    useEffect(() => {
+        onGetBusDetail()
+    }, [])
+
+    if(!data) return(
+        <div>
+            Loading...
+        </div>
+    )
+
     return(
         <>
             <div className="container px-5 py-5">
@@ -7,19 +45,19 @@ export default function BusDetail(){
                         <div className="col-6 row pt-5">
                             <div className="col-12">
                                 <h3>
-                                    Medali Mas
+                                    {data.name}
                                 </h3>
                                 <h6 className="font-weight-light">
                                     Executive Class
                                 </h6>
                                 <h5>
-                                    Rp. 145.000
+                                    Rp. {data.price?.toLocaleString()}
                                 </h5>
                                 <h6 className="font-weight-light mt-5">
-                                    20 Seat Tersedia
+                                    {data.total_seat_available} Seat Tersedia
                                 </h6>
                                 <div class="progress w-75">
-                                    <div class="progress-bar bg-success" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style={{width: '25%'}}></div>
+                                    <div class="progress-bar bg-success" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style={{width: `${(data.total_seat_available)/data.total_seat * 100}%`}}></div>
                                 </div>
                             </div>
                         </div>
@@ -38,7 +76,7 @@ export default function BusDetail(){
                                     </div>
                                     <div className="col-6">
                                         <h6 className="font-weight-light">
-                                            : 2023-01-10
+                                            : {schedule_date}
                                         </h6>
                                     </div>
                                     <div className="col-6 pl-4">
@@ -48,7 +86,7 @@ export default function BusDetail(){
                                     </div>
                                     <div className="col-6">
                                         <h6 className="font-weight-light">
-                                            : Bandung
+                                            : {from}
                                         </h6>
                                     </div>
                                     <div className="col-6 pl-4">
@@ -58,7 +96,7 @@ export default function BusDetail(){
                                     </div>
                                     <div className="col-6">
                                         <h6 className="font-weight-light">
-                                            : Tangerang Selatan
+                                            : {to}
                                         </h6>
                                     </div>
                                     <div className="col-6 pl-4">
@@ -68,7 +106,7 @@ export default function BusDetail(){
                                     </div>
                                     <div className="col-6">
                                         <h6 className="font-weight-light">
-                                            : 3
+                                            : {total_seat}
                                         </h6>
                                     </div>
                                     <div className="col-12 py-3">
@@ -83,7 +121,7 @@ export default function BusDetail(){
                                     </div>
                                     <div className="col-6">
                                         <h3 className="font-weight-light">
-                                            : Rp. 350.000
+                                            : Rp. {(data.price * total_seat).toLocaleString()}
                                         </h3>
                                     </div>
                                 </div>

@@ -17,7 +17,7 @@ export default function Login(){
             let to = inputTo.current.value 
             let total_seat = inputTotalSeat.current.value 
 
-            navigate(`/buslist?schedule_date=${schedule_date}&from=${from}&to=${to}`)
+            navigate(`/buslist?schedule_date=${schedule_date}&from=${from}&to=${to}&total_seat=${total_seat}`)
 
         } catch (error) {
             

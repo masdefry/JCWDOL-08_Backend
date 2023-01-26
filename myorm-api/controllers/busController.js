@@ -58,9 +58,9 @@ module.exports = {
             let findBus = await sequelize.query(`
             SELECT b.id, b.name, br.from, br.to, br.price, br.total_seat, br.total_seat - COUNT(td.id) AS total_seat_available, group_concat(td.seat_number) AS seat_number_booked FROM transactions t 
             JOIN transaction_details td ON td.transactions_id = t.id
-            RIGHT JOIN buses b ON (b.id = t.bus_id AND (t.schedule_date = ? OR t.schedule_date IS NULL))
+            RIGHT JOIN buses b ON (b.id = t.bus_id AND (t.status != 'Expired' AND t.schedule_date = ? OR t.schedule_date IS NULL))
             JOIN bus_rutes br ON br.bus_id = b.id
-            WHERE br.from = ? AND br.to = ? AND b.id = ? AND t.status != 'Expired'
+            WHERE br.from = ? AND br.to = ? AND b.id = ?
             GROUP BY b.id;
             `, {
                 replacements: [schedule_date, from, to, id], 
