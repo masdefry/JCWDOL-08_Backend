@@ -4,6 +4,10 @@ import {useEffect, useState} from 'react';
 
 import axios from 'axios';
 
+import {TbArmchair, TbSteeringWheel} from 'react-icons/tb';
+
+import toast, { Toaster } from 'react-hot-toast';
+
 export default function BusDetail(){
 
     const {id} = useParams()
@@ -16,14 +20,38 @@ export default function BusDetail(){
     let total_seat = getQuery.get("total_seat")
 
     const [data, setData] = useState([])
+    const [seatNumber, setSeatNumber] = useState([])
+    const [selectSeat, setSelectSeat] = useState([])
     
     let onGetBusDetail = async() => {
         try {
             let response = await axios.get(`http://localhost:5004/bus/details/${id}?schedule_date=${schedule_date}&from=${from}&to=${to}`)
-            console.log(response)
+            
+            let totalSeat = response.data.data[0].total_seat
+            let mapSeatNumber = [] // [1, 2, 3, 4, 5, dst...]
+            for(let i = 1; i <= totalSeat; i++){
+                mapSeatNumber.push(i)
+            }
+            setSeatNumber(mapSeatNumber)
+            response.data.data[0].seat_number_booked = response.data.data[0].seat_number_booked.split(',')
+            console.log(response.data.data[0])
             setData(response.data.data[0])
         } catch (error) {
             console.log(error)
+        }
+    }
+
+    let onSelectSeat = (number) => {
+        if(data.seat_number_booked.includes(number)){
+            toast('Your seat already to book')
+        }else{
+            if(selectSeat.includes(number)){
+
+            }else{
+                let newSelectSeat = [...selectSeat] 
+                newSelectSeat.push(number)
+                setSelectSeat(newSelectSeat)
+            }
         }
     }
 
@@ -39,6 +67,7 @@ export default function BusDetail(){
 
     return(
         <>
+            <Toaster />
             <div className="container px-5 py-5">
                 <div className="border mb-2">
                     <div className="row pl-5">
@@ -59,6 +88,28 @@ export default function BusDetail(){
                                 <div class="progress w-75">
                                     <div class="progress-bar bg-success" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style={{width: `${(data.total_seat_available)/data.total_seat * 100}%`}}></div>
                                 </div>
+                            </div>
+                            <div className="col-5 row mb-5">
+                                <h5 className='ml-3 mt-5'>
+                                    Seat Map: 
+                                </h5>
+                                <div className="col-6">
+                                    <TbSteeringWheel />
+                                </div>
+                                <div className="col-6">
+                                </div>
+                                {
+                                    seatNumber.map((value, index) => {
+                                        return(
+                                            <div className="col-3 text-center">
+                                                <TbArmchair onClick={() => onSelectSeat(value.toString())} style={{color: data.seat_number_booked.includes(value.toString())? 'red':selectSeat.includes(value.toString())?'blue':'black'}} /> 
+                                                <span className='text-center pl-1' style={{fontSize: '10px'}}> 
+                                                    {value.toString()}
+                                                </span>
+                                            </div> 
+                                        )
+                                    })
+                                }
                             </div>
                         </div>
                         <div className="col-6 row">
@@ -107,6 +158,18 @@ export default function BusDetail(){
                                     <div className="col-6">
                                         <h6 className="font-weight-light">
                                             : {total_seat}
+                                        </h6>
+                                    </div>
+                                    <div className="col-6 pl-4">
+                                        <h6>
+                                            Selected Seat
+                                        </h6>
+                                    </div>
+                                    <div className="col-6">
+                                        <h6 className="font-weight-light">
+                                            : {
+                                               selectSeat.join(',')
+                                            }
                                         </h6>
                                     </div>
                                     <div className="col-12 py-3">
