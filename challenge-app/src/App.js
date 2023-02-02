@@ -321,39 +321,8 @@ import {useEffect, useState} from 'react';
 
 export default function App(){
 
-    const [data, setData] = useState([])
-    const [hformations, setHFormations] = useState([])
-    const [aformations, setAFormations] = useState([])
-
     let onGetData = async() => {
         try {
-            let response = await axios.get('https://pwd-selectiontchallenge-cfw95jhtr-ryanfandy-gmailcom.vercel.app/football/stats')
-            let hometeam_formation = response.data.data.match_result[0].hometeam.formations.split('-')
-            let awayteam_formation = response.data.data.match_result[0].awayteam.formations.split('-')
-            let hometeam_map = []
-            let idxH = 0
-            for(let i=0; i<hometeam_formation.length; i++){
-                let mapToPush = []
-                for(let j=0; j<hometeam_formation[i]; j++){
-                    mapToPush.push(response.data.data.match_result[0].hometeam.starting_lineup[idxH])
-                    idxH++
-                }
-                hometeam_map.push(mapToPush)
-            }
-
-            let awayteam_map = []
-            let idxA = 0
-            for(let i=awayteam_formation.length-1; i >= 0; i--){
-                let mapToPush = []
-                for(let j=0; j<awayteam_formation[i]; j++){
-                    mapToPush.push(response.data.data.match_result[0].awayteam.starting_lineup[idxA])
-                    idxA++
-                }
-                awayteam_map.push(mapToPush)
-            }
-            setAFormations(awayteam_map)
-            setHFormations(hometeam_map)
-            setData(response.data.data.match_result[0])
         } catch (error) {
             
         }
@@ -432,35 +401,16 @@ export default function App(){
                     </btn>
 
                     <div className='bg-success rounded mt-4 px-3 py-3'>
-                        {
-                            hformations.map(value => {
-                                return <div className='row py-5'>
-                                    {value.map(val => {
-                                        return <div className={`col-${12/value.length} d-flex justify-content-center`}>
-                                                    <h6 className='bg-primary text-light d-flex justify-content-center align-items-center' style={{width: '50px', height: '50px', borderRadius: '100%'}}>
-                                                        {val}
-                                                    </h6>
-                                                </div>
-                                    })}
-                                </div>
-                            })
-                        }
+                        <div className='row py-5'>
+                            <div className={`col-3 d-flex justify-content-center`}>
+                                <h6 className='bg-primary text-light d-flex justify-content-center align-items-center' style={{width: '50px', height: '50px', borderRadius: '100%'}}>
+                                    -
+                                </h6>
+                            </div>
+                        </div>
                         <div className='border-top'>
 
                         </div>
-                        {
-                            aformations.map(value => {
-                                return <div className='row py-5'>
-                                    {value.map(val => {
-                                        return <div className={`col-${12/value.length} d-flex justify-content-center`}>
-                                                    <h6 className='bg-danger text-light d-flex justify-content-center align-items-center' style={{width: '50px', height: '50px', borderRadius: '100%'}}>
-                                                        {val}
-                                                    </h6>
-                                                </div>
-                                    })}
-                                </div>
-                            })
-                        }
                     </div>
                 </div>
             </div>
